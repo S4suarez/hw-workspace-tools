@@ -111,6 +111,15 @@ SHEET_PATTERNS = [
 # Broad: any sheet-ID-looking token (used to find the "primary" ID on a page)
 ANY_SHEET_ID = re.compile(r"\b([A-Z]{1,3}[-.]?\d[\w.-]*)\b", re.IGNORECASE)
 
+# Content signals that override a Plumbing mis-classification to Electric.
+# Panel schedules, power distribution notes, etc. get picked up as "P1" because
+# "P" + digit matches Plumbing before we find E-2xx in the title block.
+ELECTRICAL_CONTENT_SIGNALS = re.compile(
+    r"(PANEL\s+NAME|PANEL\s+SCHEDULE|PANELBOARD|POWER\s+DISTRIBUTION"
+    r"|ELECTRICAL\s+NOTES|LOAD\s+SCHEDULE|CIRCUIT\s+BREAKER|DISTRIBUTION\s+PANEL)",
+    re.IGNORECASE,
+)
+
 
 # ---------------------------------------------------------------------------
 # Filtering logic
@@ -223,6 +232,16 @@ def scan_pdf(pdf_path: str, debug: bool = False) -> list[dict]:
             sid = find_primary_sheet_id(text)
             source = "text"
             discipline, verdict = (None, "exclude") if sid is None else classify_sheet_id(sid)
+
+            # Content-based reclassification: a page tagged as Plumbing but containing
+            # electrical panel keywords is almost certainly a panel schedule (E-2xx).
+            # This catches pages where the title block prints something like "P1" or "Panel 1"
+            # but the actual content is an electrical panel schedule.
+            if discipline == "Plumbing" and ELECTRICAL_CONTENT_SIGNALS.search(text):
+                sid = sid  # keep whatever ID was found; caller can override via --include
+                discipline = "Electric"
+                verdict = "keep"
+                source = source + "+content-override"
 
             # Fallback: try PDF page label when text extraction finds no recognized MEP/FA sheet ID
             # (covers: no text at all, or text picks up wrong token like equipment model numbers)

@@ -94,6 +94,8 @@ Some plan sets include sheets beyond the standard numbering series. These are **
 | E-202, E-103, E-103A | Additional Electrical | Extra schedules or plans added per project scope. |
 | P1, P2 | Unnumbered Plumbing | Some sets use bare numbers instead of P-101 style. |
 
+> **Misclassification watch:** Panel schedule pages (e.g. "GENERAL ELECTRICAL POWER DISTRIBUTION NOTES", "PANEL NAME: HP/A/B") may be mis-detected as Plumbing if the only recognizable token is "P" + digit. The script uses content-based reclassification (keywords: PANEL NAME, PANEL SCHEDULE, POWER DISTRIBUTION, etc.) to catch this and re-assign them to Electric. If a panel schedule page is still landing under Plumbing, use `--include 28:E-202` (or the correct E-xxx sheet ID) to force-correct it.
+
 These pages are already classified as KEEP by the script. Detection issues arise when:
 - **Title block uses non-standard fonts** → text extraction picks up wrong content (e.g. equipment model numbers). The script's **page-label fallback** handles this automatically.
 - **Page is fully image-based (scanned)** → no text or labels at all. Use `--include` to force-add by page number.
