@@ -28,6 +28,40 @@ You operate within a 3-layer architecture that separates concerns to maximize re
 
 **Run through tasks without asking for permission at each step.** Do not pause to ask "should I proceed?" or "can I run this script?" — just do it. The project settings auto-approve all tool calls. Only stop and ask the user when you genuinely cannot continue without input they haven't provided (e.g. a missing file path or an ambiguous instruction with no reasonable default).
 
+## Auto-Routing — PDF Drop or Instruction
+
+When the user drops a PDF or gives any instruction, **immediately detect intent and run the correct script without asking**. Do not wait for the user to name a tool or skill.
+
+### Routing Table
+
+| What the user provides | What to run automatically |
+|---|---|
+| PDF path + any of: "plan", "plans", "plan set", "MEP", "mep", "scope", "subcontractor", "extract" | `python execution/mep_auto_extract.py --pdf "<path>"` |
+| PDF path + any of: "timetable", "rollout", "schedule", "milestones", "dates", "construction start" | `python execution/rollout_schedule_extractor.py --pdf "<path>"` |
+| PDF path + any of: "classify", "what sheets", "list sheets", "sheet IDs", "disciplines" | `python execution/classify_plan_sheets.py --pdf "<path>"` |
+| PDF path + specific page numbers to pull out | `python execution/extract_mep_pages.py --pdf "<path>" --pages "<pages>" --out ".tmp/output.pdf"` |
+| PDF path dropped with no other context | Default to `mep_auto_extract.py` — it's the primary tool |
+
+### How to extract a PDF path
+
+- If the user types or pastes a file path, use it directly.
+- If the user drops a file into the chat, the IDE provides the path — extract it and use it.
+- Always wrap paths in quotes in case they contain spaces.
+
+### Filling in optional arguments
+
+Pull these from context if the user mentioned them; otherwise omit and let the script use its defaults:
+- `--job` — job number (e.g. "10983", "S11574")
+- `--location` — store location (e.g. "Stratford NJ", "Pennsauken")
+- `--store` — store number (for rollout extractor)
+- `--project` — project name (for rollout extractor)
+- `--discipline` — trade filter: m, e, p, f, or any combo (default: mepf)
+
+### After running
+
+- Report what was found and where the output was saved.
+- If pages were missed or a milestone wasn't recognized, say so and offer to fix it with `--include` or by adding to the whitelist.
+
 ## Operating Principles
 
 **1. Check for tools first**
