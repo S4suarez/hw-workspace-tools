@@ -1,0 +1,7 @@
+# Python dependencies
+# Install with: pip install -r requirements.txt
+# Required for building executables with PyInstaller
+
+pdfplumber==0.11.7
+pypdf==6.7.2
+pyinstaller>=6.0

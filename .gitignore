@@ -1,0 +1,26 @@
+# Secrets & credentials
+.env
+credentials.json
+token.json
+
+# Intermediate files (always regenerated)
+.tmp/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PyInstaller build artifacts (auto-generated, do not commit)
+dist/
+build/*.spec
+build/mep_auto_extract/
+build/rollout_schedule_extractor/
+build/classify_plan_sheets/
+build/extract_mep_pages/
