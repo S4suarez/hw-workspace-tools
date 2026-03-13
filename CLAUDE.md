@@ -24,6 +24,10 @@ You operate within a 3-layer architecture that separates concerns to maximize re
 
 **Why this works:** if you do everything yourself, errors compound. 90% accuracy per step = 59% success over 5 steps. The solution is push complexity into deterministic code. That way you just focus on decision-making.
 
+## Autonomous Operation
+
+**Run through tasks without asking for permission at each step.** Do not pause to ask "should I proceed?" or "can I run this script?" — just do it. The project settings auto-approve all tool calls. Only stop and ask the user when you genuinely cannot continue without input they haven't provided (e.g. a missing file path or an ambiguous instruction with no reasonable default).
+
 ## Operating Principles
 
 **1. Check for tools first**
